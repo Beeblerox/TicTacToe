@@ -276,60 +276,83 @@ class MiniMax
 		}
 	}
 	
-	public static function minimax(node:GameTreeNode):Void
+	public static function minimax(node:GameTreeNode, alpha:Null<Float> = null, beta:Null<Float> = null):Float
 	{
-		for (child in node.children)
+		if (alpha == null)
 		{
-			minimax(child);
+			alpha = Math.NEGATIVE_INFINITY;
 		}
 		
-		calculateMinimaxValue(node);
+		if (beta == null)
+		{
+			beta = Math.POSITIVE_INFINITY;
+		}
+		
+		if (node.isTerminal())
+		{
+			node.minimaxValue = heuristic(node);
+			return node.minimaxValue;
+		}
+		
+		if (node.player == Player.X)
+		{
+			var maxValue:Float = Math.NEGATIVE_INFINITY;
+			var nextNode:GameTreeNode = null;
+			
+			for (child in node.children)
+			{
+				var childValue:Float = minimax(child, alpha, beta);
+				
+				if (childValue > maxValue)
+				{
+					if (childValue >= beta)
+					{
+						return childValue;
+					}
+					
+					maxValue = childValue;
+					nextNode = child;
+				}
+				
+				alpha = Math.max(maxValue, alpha);
+			}
+			
+			node.nextNode = nextNode;
+			node.minimaxValue = maxValue;
+			return maxValue;
+		}
+		else
+		{
+			var minValue:Float = Math.POSITIVE_INFINITY;
+			var nextNode:GameTreeNode = null;
+			
+			for (child in node.children)
+			{
+				var childValue:Float = minimax(child, alpha, beta);
+				
+				if (childValue < minValue)
+				{
+					if (childValue <= alpha)
+					{
+						return childValue;
+					}
+					
+					minValue = childValue;
+					nextNode = child;
+				}
+				
+				beta = Math.min(minValue, beta);
+			}
+			
+			node.nextNode = nextNode;
+			node.minimaxValue = minValue;
+			return minValue;
+		}
 	}
 	
 	private static function heuristic(node:GameTreeNode):Float
 	{
 		return node.getScore();
-	}
-	
-	private static function calculateMinimaxValue(node:GameTreeNode):Void
-	{
-		if (node.isTerminal())
-		{
-			node.minimaxValue = heuristic(node);
-			return;
-		}
-		
-		var numChildren:Int = node.children.length;
-		
-		var minmax:Float = node.children[0].minimaxValue;
-		node.nextNode = node.children[0];
-		
-		if (node.player == Player.X)
-		{
-			for (i in 1...numChildren)
-			{
-				var child:GameTreeNode = node.children[i];
-				if (child.minimaxValue > minmax)
-				{
-					minmax = child.minimaxValue;
-					node.nextNode = child;
-				}
-			}
-		}
-		else
-		{
-			for (i in 1...numChildren)
-			{
-				var child:GameTreeNode = node.children[i];
-				if (child.minimaxValue < minmax)
-				{
-					minmax = child.minimaxValue;
-					node.nextNode = child;
-				}
-			}
-		}
-		
-		node.minimaxValue = minmax;
 	}
 }
 
@@ -602,6 +625,10 @@ class GamePlayState extends State
 						{
 							currentNode = child;
 							board.drawState(currentNode.state);
+							
+							// calculate game tree
+							MiniMax.minimax(currentNode);
+							
 							timeAccumulator = 0;
 						}
 					}
