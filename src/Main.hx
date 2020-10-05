@@ -482,8 +482,8 @@ class SelectGameState extends State
 		optionAi.addChild(aiText);
 		
 		optionX.x = gameTypeText.x + 0.5 * (gameTypeText.width - 3 * cellSize);
-		optionO.x = optionX.x + optionX.width;
-		optionAi.x = optionO.x + optionO.width;
+		optionO.x = optionX.x + cellSize;
+		optionAi.x = optionO.x + cellSize;
 		optionX.y = optionO.y = optionAi.y = 100;
 	}
 	
@@ -602,6 +602,7 @@ class GamePlayState extends State
 						{
 							currentNode = child;
 							board.drawState(currentNode.state);
+							timeAccumulator = 0;
 						}
 					}
 				}
