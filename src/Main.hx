@@ -672,7 +672,7 @@ class GameOverState extends State
 			case CellState.X:
 				"X has won!";
 			case CellState.O:
-				"Y has won!";
+				"O has won!";
 			case CellState.Empty:
 				"Tie!";
 		}
